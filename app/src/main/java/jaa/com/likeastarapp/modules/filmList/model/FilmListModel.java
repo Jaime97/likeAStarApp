@@ -7,4 +7,5 @@ public class FilmListModel implements FilmListModelInterface {
     public FilmListModel(FilmListModelOutput output) {
         this.output = output;
     }
+
 }
