@@ -1,13 +1,27 @@
 package jaa.com.likeastarapp.common.dao;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Film {
+    @SerializedName("title")
     String title;
-    String[] actors;
+    @SerializedName("actor_1")
+    String actor_1;
+    @SerializedName("actor_2")
+    String actor_2;
+    @SerializedName("actor_3")
+    String actor_3;
+    @SerializedName("director")
     String director;
-    int releaseYear;
-    String location;
-    String funFacts;
-    String company;
+    @SerializedName("release_year")
+    int release_year;
+    @SerializedName("locations")
+    String locations;
+    @SerializedName("fun_facts")
+    String fun_facts;
+    @SerializedName("production_company")
+    String production_company;
+    @SerializedName("distributor")
     String distributor;
 
     public Film(String title, String director) {
@@ -15,15 +29,49 @@ public class Film {
         this.director = director;
     }
 
-    public Film(String title, String[] actors, String director, int releaseYear, String location, String funFacts, String company, String distributor) {
+    public Film(String title, String actor_1, String actor_2, String actor_3, String director, int release_year, String locations, String fun_facts, String production_company, String distributor) {
         this.title = title;
-        this.actors = actors;
+        this.actor_1 = actor_1;
+        this.actor_2 = actor_2;
+        this.actor_3 = actor_3;
         this.director = director;
-        this.releaseYear = releaseYear;
-        this.location = location;
-        this.funFacts = funFacts;
-        this.company = company;
+        this.release_year = release_year;
+        this.locations = locations;
+        this.fun_facts = fun_facts;
+        this.production_company = production_company;
         this.distributor = distributor;
+    }
+
+    public String getActor_1() {
+        return actor_1;
+    }
+
+    public void setActor_1(String actor_1) {
+        this.actor_1 = actor_1;
+    }
+
+    public String getActor_2() {
+        return actor_2;
+    }
+
+    public void setActor_2(String actor_2) {
+        this.actor_2 = actor_2;
+    }
+
+    public String getActor_3() {
+        return actor_3;
+    }
+
+    public void setActor_3(String actor_3) {
+        this.actor_3 = actor_3;
+    }
+
+    public String getLocations() {
+        return locations;
+    }
+
+    public void setLocations(String locations) {
+        this.locations = locations;
     }
 
     public String getTitle() {
@@ -34,14 +82,6 @@ public class Film {
         this.title = title;
     }
 
-    public String[] getActors() {
-        return actors;
-    }
-
-    public void setActors(String[] actors) {
-        this.actors = actors;
-    }
-
     public String getDirector() {
         return director;
     }
@@ -50,36 +90,28 @@ public class Film {
         this.director = director;
     }
 
-    public int getReleaseYear() {
-        return releaseYear;
+    public int getRelease_year() {
+        return release_year;
     }
 
-    public void setReleaseYear(int releaseYear) {
-        this.releaseYear = releaseYear;
+    public void setRelease_year(int release_year) {
+        this.release_year = release_year;
     }
 
-    public String getLocation() {
-        return location;
+    public String getFun_facts() {
+        return fun_facts;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public void setFun_facts(String fun_facts) {
+        this.fun_facts = fun_facts;
     }
 
-    public String getFunFacts() {
-        return funFacts;
+    public String getProduction_company() {
+        return production_company;
     }
 
-    public void setFunFacts(String funFacts) {
-        this.funFacts = funFacts;
-    }
-
-    public String getCompany() {
-        return company;
-    }
-
-    public void setCompany(String company) {
-        this.company = company;
+    public void setProduction_company(String production_company) {
+        this.production_company = production_company;
     }
 
     public String getDistributor() {

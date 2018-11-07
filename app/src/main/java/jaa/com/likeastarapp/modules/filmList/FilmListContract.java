@@ -12,6 +12,7 @@ public interface FilmListContract {
 
     interface Presenter {
         void start(View view);
+        void updateFilmList();
         void stop();
     }
 
