@@ -8,11 +8,13 @@ public interface FilmListContract {
 
     interface View {
         void updateList(List<Film> movieList);
+        void reloadList();
     }
 
     interface Presenter {
         void start(View view);
         void updateFilmList();
+        void favouriteButtonClicked(int position);
         void stop();
     }
 

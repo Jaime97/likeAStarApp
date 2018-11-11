@@ -6,4 +6,5 @@ import jaa.com.likeastarapp.common.dao.Film;
 
 public interface FilmListModelOutput {
     void onFilmReceived(List<Film> films);
+    void favouriteStateChanged();
 }

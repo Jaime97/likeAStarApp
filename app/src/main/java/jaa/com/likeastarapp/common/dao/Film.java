@@ -28,6 +28,8 @@ public class Film {
     String distributor;
 
     List<String> orderedLocations = new ArrayList<>();
+    boolean favourite;
+    boolean visited;
 
     public Film() {
         orderedLocations = new ArrayList<>();
@@ -72,6 +74,22 @@ public class Film {
 
     public void setOrderedLocations(List<String> orderedLocations) {
         this.orderedLocations = orderedLocations;
+    }
+
+    public boolean isFavourite() {
+        return favourite;
+    }
+
+    public void setFavourite(boolean favourite) {
+        this.favourite = favourite;
+    }
+
+    public boolean isVisited() {
+        return visited;
+    }
+
+    public void setVisited(boolean visited) {
+        this.visited = visited;
     }
 
     public String getActor_1() {

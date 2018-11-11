@@ -11,15 +11,17 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class FilmListModel implements FilmListModelInterface {
+public class FilmListModel implements FilmListModelInput {
 
     private FilmListModelOutput output;
     private static Retrofit retrofit = null;
     private FilmLocationsApi service;
+    private List<Film> orderedFilms;
 
     public FilmListModel(FilmListModelOutput output) {
         this.output = output;
         service = FilmService.getRetrofitInstance().create(FilmLocationsApi.class);
+        orderedFilms = new ArrayList<>();
     }
 
     @Override
@@ -29,13 +31,26 @@ public class FilmListModel implements FilmListModelInterface {
             @Override
             public void onResponse(Call<List<Film>> call, Response<List<Film>> response) {
                 List<Film> filmList = response.body();
-                output.onFilmReceived(orderFilmListResult(filmList));
+                orderedFilms = orderFilmListResult(filmList);
+                output.onFilmReceived(orderedFilms);
             }
 
             @Override
             public void onFailure(Call<List<Film>> call, Throwable t) {
             }
         });
+    }
+
+    @Override
+    public void changeFavouriteStateOfFilm(int position) {
+        Film film = orderedFilms.get(position);
+        if(film.isFavourite()) {
+            film.setFavourite(false);
+        }
+        else {
+            film.setFavourite(true);
+        }
+        output.favouriteStateChanged();
     }
 
     public List<Film> orderFilmListResult(List<Film> resultList) {

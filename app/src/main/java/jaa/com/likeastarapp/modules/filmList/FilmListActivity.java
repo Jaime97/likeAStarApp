@@ -37,7 +37,17 @@ public class FilmListActivity extends AppCompatActivity implements FilmListContr
 
     @Override
     public void updateList(List<Film> movieList) {
-        mAdapter = new FilmAdapter(movieList);
+        mAdapter = new FilmAdapter(movieList, this, new FilmAdapter.ClickListener() {
+            @Override
+            public void onPositionClicked(int position) {
+                presenter.favouriteButtonClicked(position);
+            }
+        });
         mRecyclerView.setAdapter(mAdapter);
+    }
+
+    @Override
+    public void reloadList() {
+        mAdapter.notifyDataSetChanged();
     }
 }
