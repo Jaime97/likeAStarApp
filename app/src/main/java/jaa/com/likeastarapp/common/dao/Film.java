@@ -2,6 +2,9 @@ package jaa.com.likeastarapp.common.dao;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Film {
     @SerializedName("title")
     String title;
@@ -24,9 +27,17 @@ public class Film {
     @SerializedName("distributor")
     String distributor;
 
+    List<String> orderedLocations = new ArrayList<>();
+
+    public Film() {
+        orderedLocations = new ArrayList<>();
+    }
+
+
     public Film(String title, String director) {
         this.title = title;
         this.director = director;
+        orderedLocations = new ArrayList<>();
     }
 
     public Film(String title, String actor_1, String actor_2, String actor_3, String director, int release_year, String locations, String fun_facts, String production_company, String distributor) {
@@ -40,6 +51,27 @@ public class Film {
         this.fun_facts = fun_facts;
         this.production_company = production_company;
         this.distributor = distributor;
+        orderedLocations = new ArrayList<>();
+    }
+
+    @Override
+    public boolean equals(Object v) {
+        boolean retVal = false;
+
+        if (v instanceof Film){
+            Film ptr = (Film) v;
+            retVal = ptr.title.equals(this.title);
+        }
+
+        return retVal;
+    }
+
+    public List<String> getOrderedLocations() {
+        return orderedLocations;
+    }
+
+    public void setOrderedLocations(List<String> orderedLocations) {
+        this.orderedLocations = orderedLocations;
     }
 
     public String getActor_1() {
@@ -72,6 +104,7 @@ public class Film {
 
     public void setLocations(String locations) {
         this.locations = locations;
+        this.getOrderedLocations().add(locations);
     }
 
     public String getTitle() {
