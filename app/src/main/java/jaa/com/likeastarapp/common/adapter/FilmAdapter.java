@@ -54,6 +54,12 @@ public class FilmAdapter extends RecyclerView.Adapter<FilmAdapter.FilmViewHolder
         this.listener = listener;
     }
 
+    public void update(List<Film> newList) {
+        mDataset.clear();
+        mDataset.addAll(newList);
+        notifyDataSetChanged();
+    }
+
     @Override
     public FilmAdapter.FilmViewHolder onCreateViewHolder(ViewGroup parent,
                                                      int viewType) {

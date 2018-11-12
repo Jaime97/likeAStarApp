@@ -51,23 +51,23 @@
 
         <ImageButton
             android:id="@+id/favouriteButton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginTop="25dp"
-            android:layout_marginBottom="35dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="20dp"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="15dp"
             android:background="@drawable/star_unselected" />
 
         <ImageView
             android:id="@+id/visitedImage"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginTop="0dp"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="5dp"
-            android:layout_marginTop="5dp"
-            android:visibility="gone"
-            android:layout_below="@+id/directorTextView"
+            android:layout_marginBottom="20dp"
+            android:layout_marginEnd="15dp"
+            android:layout_below="@id/favouriteButton"
             android:background="@drawable/check" />
 
     </RelativeLayout>

@@ -2,6 +2,7 @@ package jaa.com.likeastarapp.modules.filmList.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import jaa.com.likeastarapp.common.dao.Film;
 import jaa.com.likeastarapp.common.network.FilmLocationsApi;
@@ -17,11 +18,13 @@ public class FilmListModel implements FilmListModelInput {
     private static Retrofit retrofit = null;
     private FilmLocationsApi service;
     private List<Film> orderedFilms;
+    private List<Film> filteredFilms;
 
     public FilmListModel(FilmListModelOutput output) {
         this.output = output;
         service = FilmService.getRetrofitInstance().create(FilmLocationsApi.class);
         orderedFilms = new ArrayList<>();
+        filteredFilms = new ArrayList<>();
     }
 
     @Override
@@ -32,7 +35,8 @@ public class FilmListModel implements FilmListModelInput {
             public void onResponse(Call<List<Film>> call, Response<List<Film>> response) {
                 List<Film> filmList = response.body();
                 orderedFilms = orderFilmListResult(filmList);
-                output.onFilmReceived(orderedFilms);
+                filteredFilms.addAll(orderedFilms);
+                output.onFilmReceived(filteredFilms);
             }
 
             @Override
@@ -43,7 +47,7 @@ public class FilmListModel implements FilmListModelInput {
 
     @Override
     public void changeFavouriteStateOfFilm(int position) {
-        Film film = orderedFilms.get(position);
+        Film film = filteredFilms.get(position);
         if(film.isFavourite()) {
             film.setFavourite(false);
         }
@@ -53,7 +57,25 @@ public class FilmListModel implements FilmListModelInput {
         output.favouriteStateChanged();
     }
 
-    public List<Film> orderFilmListResult(List<Film> resultList) {
+    @Override
+    public void searchInList(String nameToSearch) {
+        filteredFilms = new ArrayList<>();
+        String lowerCaseName = nameToSearch.toLowerCase();
+        if(!nameToSearch.equals("")) {
+            for (int i = 0; i < orderedFilms.size(); i++) {
+                Film film = orderedFilms.get(i);
+                if (film.getTitle().toLowerCase().contains(lowerCaseName)) {
+                    filteredFilms.add(film);
+                }
+            }
+        }
+        else {
+            filteredFilms.addAll(orderedFilms);
+        }
+        output.searchDone(filteredFilms);
+    }
+
+    private List<Film> orderFilmListResult(List<Film> resultList) {
         List<Film> orderedFilmList = new ArrayList<>();
         for(Film film : resultList) {
             if(orderedFilmList.contains(film)) {

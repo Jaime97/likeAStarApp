@@ -15,6 +15,7 @@ public interface FilmListContract {
         void start(View view);
         void updateFilmList();
         void favouriteButtonClicked(int position);
+        void searchInList(String nameToSearch);
         void stop();
     }
 

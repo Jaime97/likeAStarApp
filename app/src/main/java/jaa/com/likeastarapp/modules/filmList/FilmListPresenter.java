@@ -31,6 +31,11 @@ public class FilmListPresenter implements FilmListContract.Presenter, FilmListMo
     }
 
     @Override
+    public void searchInList(String nameToSearch) {
+        model.searchInList(nameToSearch);
+    }
+
+    @Override
     public void onFilmReceived(List<Film> films) {
         userInterface.updateList(films);
     }
@@ -38,6 +43,11 @@ public class FilmListPresenter implements FilmListContract.Presenter, FilmListMo
     @Override
     public void favouriteStateChanged() {
         userInterface.reloadList();
+    }
+
+    @Override
+    public void searchDone(List<Film> films) {
+        userInterface.updateList(films);
     }
 
     @Override
