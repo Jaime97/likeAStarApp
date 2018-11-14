@@ -8,4 +8,5 @@ public interface FilmListModelOutput {
     void onFilmReceived(List<Film> films);
     void favouriteStateChanged();
     void searchDone(List<Film> films);
+    void returnFilm(Film film);
 }

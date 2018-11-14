@@ -1,11 +1,15 @@
 package jaa.com.likeastarapp.common.dao;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Film {
+public class Film implements Serializable {
     @SerializedName("title")
     String title;
     @SerializedName("actor_1")
@@ -172,4 +176,5 @@ public class Film {
     public void setDistributor(String distributor) {
         this.distributor = distributor;
     }
+
 }

@@ -4,9 +4,10 @@ import jaa.com.likeastarapp.common.dao.FilmImage;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 
 public interface FilmImageApi {
-    @GET("?apikey=ee8f32ba&t={title}")
-    Call<FilmImage> getFilmImage(@Path("title") String title);
+    @GET("http://www.omdbapi.com/")
+    Call<FilmImage> getFilmImage(@Query("apikey") String apikey,@Query("t") String title);
 }

@@ -2,6 +2,7 @@ package jaa.com.likeastarapp.common.adapter;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.nfc.Tag;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +22,7 @@ public class FilmAdapter extends RecyclerView.Adapter<FilmAdapter.FilmViewHolder
     private List<Film> mDataset;
     private Context context;
     private final ClickListener listener;
+    private final ClickListener rowListener;
 
     public interface ClickListener {
         void onPositionClicked(int position);
@@ -31,27 +33,36 @@ public class FilmAdapter extends RecyclerView.Adapter<FilmAdapter.FilmViewHolder
         public ImageView placeVisited;
         public ImageButton favouriteButton;
         private WeakReference<ClickListener> listenerRef;
+        private WeakReference<ClickListener> rowListenerRef;
 
-        public FilmViewHolder(View view, ClickListener listener) {
+        public FilmViewHolder(View view, ClickListener favouriteListener, ClickListener rowListener) {
             super(view);
-            listenerRef = new WeakReference<>(listener);
+            listenerRef = new WeakReference<>(favouriteListener);
+            rowListenerRef = new WeakReference<>(rowListener);
             title = (TextView) view.findViewById(R.id.titleTextView);
             director = (TextView) view.findViewById(R.id.directorTextView);
             placeVisited = view.findViewById(R.id.visitedImage);
             favouriteButton = view.findViewById(R.id.favouriteButton);
+            view.setOnClickListener(this);
             favouriteButton.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View v) {
-            listenerRef.get().onPositionClicked(getAdapterPosition());
+            if(v instanceof ImageButton) {
+                listenerRef.get().onPositionClicked(getAdapterPosition());
+            }
+            else {
+                rowListenerRef.get().onPositionClicked(getAdapterPosition());
+            }
         }
     }
 
-    public FilmAdapter(List<Film> dataSet, Context context, ClickListener listener) {
+    public FilmAdapter(List<Film> dataSet, Context context, ClickListener favouriteListener, ClickListener rowListener) {
         mDataset = dataSet;
         this.context = context;
-        this.listener = listener;
+        this.listener = favouriteListener;
+        this.rowListener = rowListener;
     }
 
     public void update(List<Film> newList) {
@@ -66,7 +77,7 @@ public class FilmAdapter extends RecyclerView.Adapter<FilmAdapter.FilmViewHolder
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.film_list_row, parent, false);
 
-        FilmViewHolder vh = new FilmViewHolder(itemView, listener);
+        FilmViewHolder vh = new FilmViewHolder(itemView, listener, rowListener);
         return vh;
     }
 

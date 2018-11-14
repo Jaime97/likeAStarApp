@@ -1,5 +1,6 @@
 package jaa.com.likeastarapp.modules.filmList;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,8 +15,11 @@ import java.util.List;
 import jaa.com.likeastarapp.R;
 import jaa.com.likeastarapp.common.adapter.FilmAdapter;
 import jaa.com.likeastarapp.common.dao.Film;
+import jaa.com.likeastarapp.modules.filmDetail.FilmDetailActivity;
 
 public class FilmListActivity extends AppCompatActivity implements FilmListContract.View, TextWatcher {
+
+    public static final String FILM_TO_SEND = "filmSend";
 
     private FilmListContract.Presenter presenter;
 
@@ -41,6 +45,11 @@ public class FilmListActivity extends AppCompatActivity implements FilmListContr
             public void onPositionClicked(int position) {
                 presenter.favouriteButtonClicked(position);
             }
+        }, new FilmAdapter.ClickListener() {
+            @Override
+            public void onPositionClicked(int position) {
+                presenter.rowClicked(position);
+            }
         });
         mRecyclerView.setAdapter(mAdapter);
 
@@ -59,6 +68,12 @@ public class FilmListActivity extends AppCompatActivity implements FilmListContr
     @Override
     public void reloadList() {
         mAdapter.notifyDataSetChanged();
+    }
+
+    public void initDetailWithFilm(Film film) {
+        Intent intent = new Intent(this, FilmDetailActivity.class);
+        intent.putExtra(FILM_TO_SEND, film);
+        startActivity(intent);
     }
 
     @Override

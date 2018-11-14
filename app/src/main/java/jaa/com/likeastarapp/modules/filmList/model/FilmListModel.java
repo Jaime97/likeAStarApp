@@ -75,6 +75,12 @@ public class FilmListModel implements FilmListModelInput {
         output.searchDone(filteredFilms);
     }
 
+    @Override
+    public void getFilm(int position) {
+        Film film = filteredFilms.get(position);
+        output.returnFilm(film);
+    }
+
     private List<Film> orderFilmListResult(List<Film> resultList) {
         List<Film> orderedFilmList = new ArrayList<>();
         for(Film film : resultList) {

@@ -1,9 +1,12 @@
 package jaa.com.likeastarapp.modules.filmList;
 
 
+import android.content.Intent;
+
 import java.util.List;
 
 import jaa.com.likeastarapp.common.dao.Film;
+import jaa.com.likeastarapp.modules.filmDetail.FilmDetailActivity;
 import jaa.com.likeastarapp.modules.filmList.model.FilmListModel;
 import jaa.com.likeastarapp.modules.filmList.model.FilmListModelInput;
 import jaa.com.likeastarapp.modules.filmList.model.FilmListModelOutput;
@@ -23,6 +26,11 @@ public class FilmListPresenter implements FilmListContract.Presenter, FilmListMo
     @Override
     public void updateFilmList() {
         model.getFilmList();
+    }
+
+    @Override
+    public void rowClicked(int position) {
+        model.getFilm(position);
     }
 
     @Override
@@ -48,6 +56,11 @@ public class FilmListPresenter implements FilmListContract.Presenter, FilmListMo
     @Override
     public void searchDone(List<Film> films) {
         userInterface.updateList(films);
+    }
+
+    @Override
+    public void returnFilm(Film film) {
+        userInterface.initDetailWithFilm(film);
     }
 
     @Override

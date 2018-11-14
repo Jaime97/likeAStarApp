@@ -5,4 +5,5 @@ public interface FilmListModelInput {
     void getFilmList();
     void changeFavouriteStateOfFilm(int position);
     void searchInList(final String nameToSearch);
+    void getFilm(int position);
 }
