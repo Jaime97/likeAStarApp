@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_gradient"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <ImageView
+        android:id="@+id/filmImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:src="@drawable/star_selected"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/film_list_row_background"
+        android:layout_below="@id/filmImage"
+        android:orientation="vertical"
+        android:id="@+id/linearLayout">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="23dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:text="Title"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginTop="20dp"
+            android:text="@string/starring"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginTop="20dp"
+            android:text="@string/directed"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:text="@string/produced"/>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/visitedButton"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:text="@string/visited"
+        android:textColor="@color/white"
+        android:background="@color/colorAccent"
+        android:layout_alignBaseline="@+id/zoneButton"
+        android:layout_alignBottom="@+id/zoneButton"
+        android:layout_alignStart="@+id/linearLayout"
+        android:layout_marginStart="10dp" />
+
+    <Button
+        android:id="@+id/zoneButton"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:text="@string/see_locations"
+        android:background="@color/colorAccent"
+        android:textColor="@color/white"
+        android:layout_alignEnd="@+id/linearLayout"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="13dp"
+        android:layout_marginEnd="10dp" />
+
+
+
+</RelativeLayout>

@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">LikeAStarApp</string>
     <string name="search">Search</string>
+    <string name="favourites">Favourites</string>
+    <string name="all_elements">All elements</string>
+    <string name="visited">Mark as visited</string>
+    <string name="see_locations">See locations</string>
+    <string name="starring">Starring by </string>
+    <string name="directed">Directed by </string>
+    <string name="produced">Produced by </string>
 </resources>
