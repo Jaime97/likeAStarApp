@@ -9,4 +9,9 @@
     <string name="starring">Starring by</string>
     <string name="directed">Directed by</string>
     <string name="produced">Produced by</string>
+    <string name="internet">Internet</string>
+    <string name="only_wifi">Download only with wifi</string>
+    <string name="only_wifi_desc">The list download will be made only with wifi connection</string>
+    <string name="download_automatically">Automatically update list</string>
+    <string name="download_automatically_desc">The list will be automatically update every minute</string>
 </resources>

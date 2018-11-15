@@ -7,4 +7,8 @@ public interface FilmListModelInput {
     void searchInList(final String nameToSearch);
     void getFilm(int position);
     void setFavouriteFilter(boolean favourite);
+    void setDownloadOnlyWithWifiPreference();
+    void setDownloadAutomaticallyPreference();
+    void startRepeatingTask();
+    void stopRepeatingTask();
 }

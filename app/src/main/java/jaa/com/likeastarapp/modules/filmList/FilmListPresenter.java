@@ -27,6 +27,8 @@ public class FilmListPresenter implements FilmListContract.Presenter, FilmListMo
 
     @Override
     public void resume() {
+        model.setDownloadAutomaticallyPreference();
+        model.setDownloadOnlyWithWifiPreference();
         updateFilmList();
     }
 
@@ -64,6 +66,11 @@ public class FilmListPresenter implements FilmListContract.Presenter, FilmListMo
     }
 
     @Override
+    public void onSettingsButtonCicked() {
+        userInterface.initSettings();
+    }
+
+    @Override
     public void onFilmReceived(List<Film> films) {
         userInterface.updateList(films);
     }
@@ -85,6 +92,6 @@ public class FilmListPresenter implements FilmListContract.Presenter, FilmListMo
 
     @Override
     public void stop() {
-
+        model.stopRepeatingTask();
     }
 }

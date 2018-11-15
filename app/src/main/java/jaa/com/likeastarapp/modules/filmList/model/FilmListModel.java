@@ -2,10 +2,17 @@ package jaa.com.likeastarapp.modules.filmList.model;
 
 import android.arch.persistence.room.Room;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.stream.Collectors;
 
 import jaa.com.likeastarapp.common.dao.Film;
@@ -26,9 +33,24 @@ public class FilmListModel implements FilmListModelInput {
     private List<Film> filteredFilms;
     private boolean favouriteFilter;
     private Context context;
+    private boolean downloadOnlyWithWifi;
+    private boolean downloadAutomatically;
+    private NetworkInfo mWifi;
 
     private static final String DATABASE_NAME = "film_db";
     private FilmDatabase filmDatabase;
+
+    private final static int INTERVAL = 1000 * 60;
+    Handler mHandler = new Handler();
+
+    Runnable mHandlerTask = new Runnable() {
+        @Override
+        public void run() {
+            getFilmList();
+            mHandler.postDelayed(mHandlerTask, INTERVAL);
+
+        }
+    };
 
     public FilmListModel(FilmListModelOutput output, Context context) {
         this.output = output;
@@ -41,10 +63,35 @@ public class FilmListModel implements FilmListModelInput {
     }
 
     @Override
+    public void setDownloadOnlyWithWifiPreference() {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        downloadOnlyWithWifi = sharedPref.getBoolean("pref_only_wifi", false);
+    }
+
+    @Override
+    public void setDownloadAutomaticallyPreference() {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        downloadAutomatically = sharedPref.getBoolean("pref_automatic_download", false);
+        if(downloadAutomatically) {
+            startRepeatingTask();
+        }
+
+    }
+
+    @Override
+    public void startRepeatingTask() {
+        mHandlerTask.run();
+    }
+
+    @Override
+    public void stopRepeatingTask() {
+        mHandler.removeCallbacks(mHandlerTask);
+    }
+
+    @Override
     public void getFilmList() {
         new ReadDatabaseOperation().execute();
     }
-
 
     @Override
     public void changeFavouriteStateOfFilm(int position) {
@@ -86,42 +133,53 @@ public class FilmListModel implements FilmListModelInput {
     }
 
     private void checkDatabaseListWithOnline(final List<Film> databaseFilms) {
-        Call<List<Film>> call = service.getFilmList();
-        call.enqueue(new Callback<List<Film>>() {
-            @Override
-            public void onResponse(Call<List<Film>> call, Response<List<Film>> response) {
-                List<Film> filmList = response.body();
-                orderedFilms = new ArrayList<>();
-                filteredFilms = new ArrayList<>();
-                filmList = orderFilmListResult(filmList);
-                for(Film databaseFilm : databaseFilms) {
-                    if(!filteredFilms.contains(databaseFilm)) {
-                        if(!favouriteFilter || databaseFilm.isFavourite()) {
-                            filteredFilms.add(databaseFilm);
-                        }
-                    }
-                    if(!orderedFilms.contains(databaseFilm)) {
-                        orderedFilms.add(databaseFilm);
-                    }
+        ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        if((mWifi.isConnected() && downloadOnlyWithWifi) || !downloadOnlyWithWifi) {
+            Call<List<Film>> call = service.getFilmList();
+            call.enqueue(new Callback<List<Film>>() {
+                @Override
+                public void onResponse(Call<List<Film>> call, Response<List<Film>> response) {
+                    manageFilmListResults(databaseFilms, response.body());
                 }
-                for(Film onlineFilm : filmList) {
-                    if(!filteredFilms.contains(onlineFilm)) {
-                        if(!favouriteFilter || onlineFilm.isFavourite()) {
-                            filteredFilms.add(onlineFilm);
-                        }
-                    }
-                    if(!orderedFilms.contains(onlineFilm)) {
-                        new WriteDatabaseOperation().execute(onlineFilm);
-                        orderedFilms.add(onlineFilm);
-                    }
-                }
-                output.onFilmReceived(filteredFilms);
-            }
 
-            @Override
-            public void onFailure(Call<List<Film>> call, Throwable t) {
+                @Override
+                public void onFailure(Call<List<Film>> call, Throwable t) {
+                }
+            });
+        }
+        else {
+            List<Film> empltyFilmList = new ArrayList<>();
+            manageFilmListResults(databaseFilms, empltyFilmList);
+        }
+    }
+
+    private void manageFilmListResults(List<Film> databaseFilms, List<Film> onlineFilms) {
+        orderedFilms = new ArrayList<>();
+        filteredFilms = new ArrayList<>();
+        onlineFilms = orderFilmListResult(onlineFilms);
+        for(Film databaseFilm : databaseFilms) {
+            if(!filteredFilms.contains(databaseFilm)) {
+                if(!favouriteFilter || databaseFilm.isFavourite()) {
+                    filteredFilms.add(databaseFilm);
+                }
             }
-        });
+            if(!orderedFilms.contains(databaseFilm)) {
+                orderedFilms.add(databaseFilm);
+            }
+        }
+        for(Film onlineFilm : onlineFilms) {
+            if(!filteredFilms.contains(onlineFilm)) {
+                if(!favouriteFilter || onlineFilm.isFavourite()) {
+                    filteredFilms.add(onlineFilm);
+                }
+            }
+            if(!orderedFilms.contains(onlineFilm)) {
+                new WriteDatabaseOperation().execute(onlineFilm);
+                orderedFilms.add(onlineFilm);
+            }
+        }
+        output.onFilmReceived(filteredFilms);
     }
 
     private List<Film> orderFilmListResult(List<Film> resultList) {

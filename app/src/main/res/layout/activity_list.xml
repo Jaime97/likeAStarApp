@@ -10,23 +10,41 @@
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:backgroundTint="@color/colorDark"
+        app:tabSelectedTextColor="@color/white"
+        app:tabTextColor="@color/black"
         android:background="?attr/colorPrimary"/>
 
-    <EditText
-        android:id="@+id/search_bar"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="30dp"
-        android:layout_marginBottom="5dp"
-        android:background="@drawable/film_list_row_background"
-        android:hint="@string/search"
-        android:paddingLeft="10dp"
-        android:imeOptions="actionDone"
-        android:inputType="text"
-        android:gravity="center_vertical"
-        android:lines="1"
-        android:layout_height="35dp" />
+        android:layout_height="wrap_content">
+        <EditText
+            android:id="@+id/search_bar"
+            android:layout_width="match_parent"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="70dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/film_list_row_background"
+            android:hint="@string/search"
+            android:paddingLeft="10dp"
+            android:imeOptions="actionDone"
+            android:inputType="text"
+            android:gravity="center_vertical"
+            android:lines="1"
+            android:layout_height="35dp" />
+
+        <ImageButton
+            android:id="@+id/settingsButton"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginBottom="14dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/options" />
+    </RelativeLayout>
+
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/film_recycler_view"

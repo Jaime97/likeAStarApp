@@ -8,6 +8,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ import jaa.com.likeastarapp.R;
 import jaa.com.likeastarapp.common.adapter.FilmAdapter;
 import jaa.com.likeastarapp.common.dao.Film;
 import jaa.com.likeastarapp.modules.filmDetail.FilmDetailActivity;
+import jaa.com.likeastarapp.modules.settings.SettingsActivity;
 
 public class FilmListActivity extends AppCompatActivity implements FilmListContract.View, TextWatcher {
 
@@ -29,6 +32,7 @@ public class FilmListActivity extends AppCompatActivity implements FilmListContr
     private FilmAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private TabLayout tabLayout;
+    private ImageButton settingsButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +44,15 @@ public class FilmListActivity extends AppCompatActivity implements FilmListContr
 
         mRecyclerView = findViewById(R.id.film_recycler_view);
         mRecyclerView.setHasFixedSize(true);
+
+        settingsButton = findViewById(R.id.settingsButton);
+
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                presenter.onSettingsButtonCicked();
+            }
+        });
 
         tabLayout = findViewById(R.id.tabLayout);
         tabLayout.addTab(tabLayout.newTab().setText(R.string.all_elements));
@@ -104,10 +117,23 @@ public class FilmListActivity extends AppCompatActivity implements FilmListContr
         mAdapter.notifyDataSetChanged();
     }
 
+    @Override
     public void initDetailWithFilm(Film film) {
         Intent intent = new Intent(this, FilmDetailActivity.class);
         intent.putExtra(FILM_TO_SEND, film);
         startActivity(intent);
+    }
+
+    @Override
+    public void initSettings() {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        presenter.stop();
     }
 
     @Override

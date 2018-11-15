@@ -11,6 +11,7 @@ public interface FilmListContract {
     interface View {
         void updateList(List<Film> movieList);
         void initDetailWithFilm(Film film);
+        void initSettings();
         void reloadList();
     }
 
@@ -23,6 +24,7 @@ public interface FilmListContract {
         void searchInList(String nameToSearch);
         void favouriteTabSelected();
         void allElementsTabSelected();
+        void onSettingsButtonCicked();
         void stop();
     }
 
