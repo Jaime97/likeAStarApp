@@ -24,6 +24,7 @@ public class FilmListModel implements FilmListModelInput {
     private FilmLocationsApi service;
     private List<Film> orderedFilms;
     private List<Film> filteredFilms;
+    private boolean favouriteFilter;
     private Context context;
 
     private static final String DATABASE_NAME = "film_db";
@@ -62,16 +63,13 @@ public class FilmListModel implements FilmListModelInput {
     public void searchInList(String nameToSearch) {
         filteredFilms = new ArrayList<>();
         String lowerCaseName = nameToSearch.toLowerCase();
-        if(!nameToSearch.equals("")) {
-            for (int i = 0; i < orderedFilms.size(); i++) {
-                Film film = orderedFilms.get(i);
-                if (film.getTitle().toLowerCase().contains(lowerCaseName)) {
+        for (int i = 0; i < orderedFilms.size(); i++) {
+            Film film = orderedFilms.get(i);
+            if (film.getTitle().toLowerCase().contains(lowerCaseName)) {
+                if(!favouriteFilter || film.isFavourite()) {
                     filteredFilms.add(film);
                 }
             }
-        }
-        else {
-            filteredFilms.addAll(orderedFilms);
         }
         output.searchDone(filteredFilms);
     }
@@ -82,6 +80,11 @@ public class FilmListModel implements FilmListModelInput {
         output.returnFilm(film);
     }
 
+    @Override
+    public void setFavouriteFilter(boolean favourite) {
+        favouriteFilter = favourite;
+    }
+
     private void checkDatabaseListWithOnline(final List<Film> databaseFilms) {
         Call<List<Film>> call = service.getFilmList();
         call.enqueue(new Callback<List<Film>>() {
@@ -90,15 +93,28 @@ public class FilmListModel implements FilmListModelInput {
                 List<Film> filmList = response.body();
                 orderedFilms = new ArrayList<>();
                 filteredFilms = new ArrayList<>();
-                orderedFilms = orderFilmListResult(filmList);
-                filteredFilms.addAll(databaseFilms);
-                for(Film onlineFilm : orderedFilms) {
-                    if(!filteredFilms.contains(onlineFilm)) {
-                        new WriteDatabaseOperation().execute(onlineFilm);
-                        filteredFilms.add(onlineFilm);
+                filmList = orderFilmListResult(filmList);
+                for(Film databaseFilm : databaseFilms) {
+                    if(!filteredFilms.contains(databaseFilm)) {
+                        if(!favouriteFilter || databaseFilm.isFavourite()) {
+                            filteredFilms.add(databaseFilm);
+                        }
+                    }
+                    if(!orderedFilms.contains(databaseFilm)) {
+                        orderedFilms.add(databaseFilm);
                     }
                 }
-
+                for(Film onlineFilm : filmList) {
+                    if(!filteredFilms.contains(onlineFilm)) {
+                        if(!favouriteFilter || onlineFilm.isFavourite()) {
+                            filteredFilms.add(onlineFilm);
+                        }
+                    }
+                    if(!orderedFilms.contains(onlineFilm)) {
+                        new WriteDatabaseOperation().execute(onlineFilm);
+                        orderedFilms.add(onlineFilm);
+                    }
+                }
                 output.onFilmReceived(filteredFilms);
             }
 

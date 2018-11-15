@@ -1,6 +1,7 @@
 package jaa.com.likeastarapp.modules.filmList;
 
 import android.content.Intent;
+import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -27,6 +28,7 @@ public class FilmListActivity extends AppCompatActivity implements FilmListContr
     private TextView searchBar;
     private FilmAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private TabLayout tabLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +40,32 @@ public class FilmListActivity extends AppCompatActivity implements FilmListContr
 
         mRecyclerView = findViewById(R.id.film_recycler_view);
         mRecyclerView.setHasFixedSize(true);
+
+        tabLayout = findViewById(R.id.tabLayout);
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.all_elements));
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.favourites));
+
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                if(tabLayout.getSelectedTabPosition() == 0){
+                    presenter.allElementsTabSelected();
+                }
+                else {
+                    presenter.favouriteTabSelected();
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
 
         List<Film> emptyList = new ArrayList<>();
         mAdapter = new FilmAdapter(emptyList, this, new FilmAdapter.ClickListener() {

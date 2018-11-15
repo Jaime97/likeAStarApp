@@ -6,4 +6,5 @@ public interface FilmListModelInput {
     void changeFavouriteStateOfFilm(int position);
     void searchInList(final String nameToSearch);
     void getFilm(int position);
+    void setFavouriteFilter(boolean favourite);
 }

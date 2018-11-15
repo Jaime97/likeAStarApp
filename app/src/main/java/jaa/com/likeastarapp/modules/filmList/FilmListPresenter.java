@@ -16,11 +16,13 @@ public class FilmListPresenter implements FilmListContract.Presenter, FilmListMo
 
     private FilmListContract.View userInterface;
     private FilmListModelInput model;
+    private String nameToSearch;
 
     @Override
     public void start(FilmListContract.View view, Context context) {
         userInterface = view;
         model = new FilmListModel(this, context);
+        nameToSearch = "";
     }
 
     @Override
@@ -45,6 +47,19 @@ public class FilmListPresenter implements FilmListContract.Presenter, FilmListMo
 
     @Override
     public void searchInList(String nameToSearch) {
+        this.nameToSearch = nameToSearch;
+        model.searchInList(nameToSearch);
+    }
+
+    @Override
+    public void favouriteTabSelected() {
+        model.setFavouriteFilter(true);
+        model.searchInList(nameToSearch);
+    }
+
+    @Override
+    public void allElementsTabSelected() {
+        model.setFavouriteFilter(false);
         model.searchInList(nameToSearch);
     }
 
