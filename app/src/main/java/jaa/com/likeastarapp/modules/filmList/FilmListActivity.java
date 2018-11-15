@@ -57,7 +57,13 @@ public class FilmListActivity extends AppCompatActivity implements FilmListContr
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         presenter = new FilmListPresenter();
-        presenter.start(this);
+        presenter.start(this, getApplicationContext());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        presenter.resume();
     }
 
     @Override

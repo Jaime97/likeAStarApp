@@ -1,14 +1,14 @@
 package jaa.com.likeastarapp.modules.filmDetail;
 
-import android.graphics.Bitmap;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.squareup.picasso.Picasso;
 
 import jaa.com.likeastarapp.R;
 import jaa.com.likeastarapp.common.dao.Film;
@@ -32,8 +32,22 @@ public class FilmDetailActivity extends AppCompatActivity implements FilmDetailC
         actorTextview = findViewById(R.id.actorTextView);
         productorTextview = findViewById(R.id.productorTextView);
         titleTextView = findViewById(R.id.titleTextView);
+        visitedButton = findViewById(R.id.visitedButton);
+        zoneButton = findViewById(R.id.zoneButton);
+        visitedButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.visitedButtonClicked();
+            }
+        });
+        zoneButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.zoneButtonClicked();
+            }
+        });
         presenter = new FilmDetailPresenter();
-        presenter.start(this);
+        presenter.start(this, getApplicationContext());
     }
 
     @Override
@@ -66,10 +80,20 @@ public class FilmDetailActivity extends AppCompatActivity implements FilmDetailC
     }
 
     @Override
+    public void initMapWithFilm(Film film) {
+        String uri = "http://maps.google.co.in/maps?q=" + film.getLocations();
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+        startActivity(intent);
+    }
+
+    @Override
     public void addFilmImage(FilmImage image) {
-        ImageLoader imageLoader = ImageLoader.getInstance();
-        imageLoader.init(ImageLoaderConfiguration.createDefault(this));
-        imageLoader.displayImage(image.getPoster(), filmImage);
+        Picasso.get().load(image.getPoster()).placeholder(R.drawable.placeholder).into(filmImage);
+    }
+
+    @Override
+    public void changeVisitedText(int text) {
+        visitedButton.setText(text);
     }
 
 }

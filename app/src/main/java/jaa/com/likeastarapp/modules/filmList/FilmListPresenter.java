@@ -1,6 +1,7 @@
 package jaa.com.likeastarapp.modules.filmList;
 
 
+import android.content.Context;
 import android.content.Intent;
 
 import java.util.List;
@@ -17,9 +18,13 @@ public class FilmListPresenter implements FilmListContract.Presenter, FilmListMo
     private FilmListModelInput model;
 
     @Override
-    public void start(FilmListContract.View view) {
+    public void start(FilmListContract.View view, Context context) {
         userInterface = view;
-        model = new FilmListModel(this);
+        model = new FilmListModel(this, context);
+    }
+
+    @Override
+    public void resume() {
         updateFilmList();
     }
 

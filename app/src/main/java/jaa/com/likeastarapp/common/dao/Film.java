@@ -1,7 +1,11 @@
 package jaa.com.likeastarapp.common.dao;
 
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+import android.arch.persistence.room.TypeConverters;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -9,7 +13,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import jaa.com.likeastarapp.common.database.ListTypeConverter;
+
+@Entity
 public class Film implements Serializable {
+    @NonNull
+    @PrimaryKey
     @SerializedName("title")
     String title;
     @SerializedName("actor_1")
@@ -31,6 +40,7 @@ public class Film implements Serializable {
     @SerializedName("distributor")
     String distributor;
 
+    @TypeConverters(ListTypeConverter.class)
     List<String> orderedLocations = new ArrayList<>();
     boolean favourite;
     boolean visited;

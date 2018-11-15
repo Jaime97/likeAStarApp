@@ -1,5 +1,7 @@
 package jaa.com.likeastarapp.modules.filmList;
 
+import android.content.Context;
+
 import java.util.List;
 
 import jaa.com.likeastarapp.common.dao.Film;
@@ -14,7 +16,8 @@ public interface FilmListContract {
     }
 
     interface Presenter {
-        void start(View view);
+        void start(View view, Context context);
+        void resume();
         void updateFilmList();
         void rowClicked(int position);
         void favouriteButtonClicked(int position);
