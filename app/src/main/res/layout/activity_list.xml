@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:backgroundTint="@color/colorDark"
         app:tabSelectedTextColor="@color/white"
-        app:tabTextColor="@color/black"
+        app:tabTextColor="@color/colorPrimaryDark"
         android:background="?attr/colorPrimary"/>
 
     <RelativeLayout
