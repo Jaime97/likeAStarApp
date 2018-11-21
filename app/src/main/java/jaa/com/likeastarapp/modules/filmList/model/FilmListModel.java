@@ -1,0 +1,235 @@
+package jaa.com.likeastarapp.modules.filmList.model;
+
+import android.arch.persistence.room.Room;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
+import android.os.Handler;
+import android.preference.PreferenceManager;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.stream.Collectors;
+
+import jaa.com.likeastarapp.common.dao.Film;
+import jaa.com.likeastarapp.common.database.FilmDatabase;
+import jaa.com.likeastarapp.common.network.FilmLocationsApi;
+import jaa.com.likeastarapp.common.network.FilmService;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+
+public class FilmListModel implements FilmListModelInput {
+
+    private FilmListModelOutput output;
+    private static Retrofit retrofit = null;
+    private FilmLocationsApi service;
+    private List<Film> orderedFilms;
+    private List<Film> filteredFilms;
+    private boolean favouriteFilter;
+    private Context context;
+    private boolean downloadOnlyWithWifi;
+    private boolean downloadAutomatically;
+    private NetworkInfo mWifi;
+
+    private static final String DATABASE_NAME = "film_db";
+    private FilmDatabase filmDatabase;
+
+    private final static int INTERVAL = 1000 * 60;
+    Handler mHandler = new Handler();
+
+    Runnable mHandlerTask = new Runnable() {
+        @Override
+        public void run() {
+            getFilmList();
+            mHandler.postDelayed(mHandlerTask, INTERVAL);
+
+        }
+    };
+
+    public FilmListModel(FilmListModelOutput output, Context context) {
+        this.output = output;
+        service = FilmService.getRetrofitInstance().create(FilmLocationsApi.class);
+        orderedFilms = new ArrayList<>();
+        filteredFilms = new ArrayList<>();
+        this.context = context;
+        filmDatabase = Room.databaseBuilder(this.context,
+                FilmDatabase.class, DATABASE_NAME).fallbackToDestructiveMigration().build();
+    }
+
+    @Override
+    public void setDownloadOnlyWithWifiPreference() {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        downloadOnlyWithWifi = sharedPref.getBoolean("pref_only_wifi", false);
+    }
+
+    @Override
+    public void setDownloadAutomaticallyPreference() {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        downloadAutomatically = sharedPref.getBoolean("pref_automatic_download", false);
+        if(downloadAutomatically) {
+            startRepeatingTask();
+        }
+
+    }
+
+    @Override
+    public void startRepeatingTask() {
+        mHandlerTask.run();
+    }
+
+    @Override
+    public void stopRepeatingTask() {
+        mHandler.removeCallbacks(mHandlerTask);
+    }
+
+    @Override
+    public void getFilmList() {
+        new ReadDatabaseOperation().execute();
+    }
+
+    @Override
+    public void changeFavouriteStateOfFilm(int position) {
+        Film film = filteredFilms.get(position);
+        if(film.isFavourite()) {
+            film.setFavourite(false);
+        }
+        else {
+            film.setFavourite(true);
+        }
+        new UpdateDatabaseOperation().execute(film);
+        output.favouriteStateChanged();
+    }
+
+    @Override
+    public void searchInList(String nameToSearch) {
+        filteredFilms = new ArrayList<>();
+        String lowerCaseName = nameToSearch.toLowerCase();
+        for (int i = 0; i < orderedFilms.size(); i++) {
+            Film film = orderedFilms.get(i);
+            if (film.getTitle().toLowerCase().contains(lowerCaseName)) {
+                if(!favouriteFilter || film.isFavourite()) {
+                    filteredFilms.add(film);
+                }
+            }
+        }
+        output.searchDone(filteredFilms);
+    }
+
+    @Override
+    public void getFilm(int position) {
+        Film film = filteredFilms.get(position);
+        output.returnFilm(film);
+    }
+
+    @Override
+    public void setFavouriteFilter(boolean favourite) {
+        favouriteFilter = favourite;
+    }
+
+    private void checkDatabaseListWithOnline(final List<Film> databaseFilms) {
+        ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        if((mWifi.isConnected() && downloadOnlyWithWifi) || !downloadOnlyWithWifi) {
+            Call<List<Film>> call = service.getFilmList();
+            call.enqueue(new Callback<List<Film>>() {
+                @Override
+                public void onResponse(Call<List<Film>> call, Response<List<Film>> response) {
+                    manageFilmListResults(databaseFilms, response.body());
+                }
+
+                @Override
+                public void onFailure(Call<List<Film>> call, Throwable t) {
+                }
+            });
+        }
+        else {
+            List<Film> empltyFilmList = new ArrayList<>();
+            manageFilmListResults(databaseFilms, empltyFilmList);
+        }
+    }
+
+    private void manageFilmListResults(List<Film> databaseFilms, List<Film> onlineFilms) {
+        orderedFilms = new ArrayList<>();
+        filteredFilms = new ArrayList<>();
+        onlineFilms = orderFilmListResult(onlineFilms);
+        for(Film databaseFilm : databaseFilms) {
+            if(!filteredFilms.contains(databaseFilm)) {
+                if(!favouriteFilter || databaseFilm.isFavourite()) {
+                    filteredFilms.add(databaseFilm);
+                }
+            }
+            if(!orderedFilms.contains(databaseFilm)) {
+                orderedFilms.add(databaseFilm);
+            }
+        }
+        for(Film onlineFilm : onlineFilms) {
+            if(!filteredFilms.contains(onlineFilm)) {
+                if(!favouriteFilter || onlineFilm.isFavourite()) {
+                    filteredFilms.add(onlineFilm);
+                }
+            }
+            if(!orderedFilms.contains(onlineFilm)) {
+                new WriteDatabaseOperation().execute(onlineFilm);
+                orderedFilms.add(onlineFilm);
+            }
+        }
+        output.onFilmReceived(filteredFilms);
+    }
+
+    private List<Film> orderFilmListResult(List<Film> resultList) {
+        List<Film> orderedFilmList = new ArrayList<>();
+        for(Film film : resultList) {
+            if(orderedFilmList.contains(film)) {
+                Film filmInList = orderedFilmList.get(orderedFilmList.indexOf(film));
+                filmInList.getOrderedLocations().add(film.getLocations());
+            }
+            else {
+                orderedFilmList.add(film);
+                film.getOrderedLocations().add(film.getLocations());
+            }
+        }
+        return orderedFilmList;
+    }
+
+    private class ReadDatabaseOperation extends AsyncTask<Void, Void, List<Film>> {
+        @Override
+        protected List<Film> doInBackground(Void... params) {
+
+            List<Film> films = filmDatabase.databaseAccess().getAllFilms();
+
+            return films;
+        }
+
+        @Override
+        protected void onPostExecute(List<Film> result) {
+            checkDatabaseListWithOnline(result);
+        }
+    }
+
+    private class WriteDatabaseOperation extends AsyncTask<Film, Void, Void> {
+        @Override
+        protected Void doInBackground(Film... params) {
+
+            filmDatabase.databaseAccess().insertOnlySingleFilm(params[0]);
+
+            return null;
+        }
+    }
+
+    private class UpdateDatabaseOperation extends AsyncTask<Film, Void, Void> {
+        @Override
+        protected Void doInBackground(Film... params) {
+
+            filmDatabase.databaseAccess().updateFilm(params[0]);
+
+            return null;
+        }
+    }
+
+}

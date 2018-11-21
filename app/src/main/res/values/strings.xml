@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">LikeAStarApp</string>
+    <string name="search">Search</string>
+    <string name="favourites">Favourites</string>
+    <string name="all_elements">All elements</string>
+    <string name="visited">Uncheck as visited</string>
+    <string name="unvisited">Check as visited</string>
+    <string name="see_locations">See locations</string>
+    <string name="starring">Starring by</string>
+    <string name="directed">Directed by</string>
+    <string name="produced">Produced by</string>
+    <string name="internet">Internet</string>
+    <string name="only_wifi">Download only with wifi</string>
+    <string name="only_wifi_desc">The list download will be made only with wifi connection</string>
+    <string name="download_automatically">Automatically update list</string>
+    <string name="download_automatically_desc">The list will be automatically update every minute</string>
 </resources>
