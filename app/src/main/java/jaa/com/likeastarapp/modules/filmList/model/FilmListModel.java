@@ -1,5 +1,6 @@
 package jaa.com.likeastarapp.modules.filmList.model;
 
+import android.arch.lifecycle.MutableLiveData;
 import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -11,9 +12,6 @@ import android.preference.PreferenceManager;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.stream.Collectors;
 
 import jaa.com.likeastarapp.common.dao.Film;
 import jaa.com.likeastarapp.common.database.FilmDatabase;
@@ -29,8 +27,7 @@ public class FilmListModel implements FilmListModelInput {
     private FilmListModelOutput output;
     private static Retrofit retrofit = null;
     private FilmLocationsApi service;
-    private List<Film> orderedFilms;
-    private List<Film> filteredFilms;
+    private MutableLiveData<List<Film>> filteredFilms;
     private boolean favouriteFilter;
     private Context context;
     private boolean downloadOnlyWithWifi;
@@ -46,20 +43,34 @@ public class FilmListModel implements FilmListModelInput {
     Runnable mHandlerTask = new Runnable() {
         @Override
         public void run() {
-            getFilmList();
+            updateFilmList();
             mHandler.postDelayed(mHandlerTask, INTERVAL);
 
         }
     };
 
+    public interface ListOfFilmsInterface {
+        void returnListOfFilms(List<Film> films);
+    }
+
+    public class FilmCallWrapper {
+        public ListOfFilmsInterface listOfFilmsInterface;
+        public List<Film> films;
+    }
+
     public FilmListModel(FilmListModelOutput output, Context context) {
         this.output = output;
         service = FilmService.getRetrofitInstance().create(FilmLocationsApi.class);
-        orderedFilms = new ArrayList<>();
-        filteredFilms = new ArrayList<>();
+        filteredFilms = new MutableLiveData<>();
+        filteredFilms.setValue(new ArrayList<Film>());
         this.context = context;
         filmDatabase = Room.databaseBuilder(this.context,
                 FilmDatabase.class, DATABASE_NAME).fallbackToDestructiveMigration().build();
+    }
+
+    @Override
+    public MutableLiveData<List<Film>> getFilmList() {
+        return filteredFilms;
     }
 
     @Override
@@ -89,41 +100,52 @@ public class FilmListModel implements FilmListModelInput {
     }
 
     @Override
-    public void getFilmList() {
-        new ReadDatabaseOperation().execute();
+    public void updateFilmList() {
+        new ReadDatabaseOperation().execute(new ListOfFilmsInterface(){
+            @Override
+            public void returnListOfFilms(List<Film> films) {
+                checkDatabaseListWithOnline(films);
+            }
+        });
     }
 
     @Override
     public void changeFavouriteStateOfFilm(int position) {
-        Film film = filteredFilms.get(position);
+        Film film = filteredFilms.getValue().get(position);
         if(film.isFavourite()) {
             film.setFavourite(false);
         }
         else {
             film.setFavourite(true);
         }
+        filteredFilms.setValue(filteredFilms.getValue());
         new UpdateDatabaseOperation().execute(film);
-        output.favouriteStateChanged();
     }
 
     @Override
     public void searchInList(String nameToSearch) {
-        filteredFilms = new ArrayList<>();
-        String lowerCaseName = nameToSearch.toLowerCase();
-        for (int i = 0; i < orderedFilms.size(); i++) {
-            Film film = orderedFilms.get(i);
-            if (film.getTitle().toLowerCase().contains(lowerCaseName)) {
-                if(!favouriteFilter || film.isFavourite()) {
-                    filteredFilms.add(film);
+        filteredFilms.setValue(new ArrayList<Film>());
+        final String lowerCaseName = nameToSearch.toLowerCase();
+        new ReadDatabaseOperation().execute(new ListOfFilmsInterface(){
+            @Override
+            public void returnListOfFilms(List<Film> films) {
+                for (int i = 0; i < films.size(); i++) {
+                    Film film = films.get(i);
+                    if (film.getTitle().toLowerCase().contains(lowerCaseName)) {
+                        if(!favouriteFilter || film.isFavourite()) {
+                            filteredFilms.getValue().add(film);
+                            filteredFilms.setValue(filteredFilms.getValue());
+                        }
+                    }
                 }
             }
-        }
-        output.searchDone(filteredFilms);
+        });
+
     }
 
     @Override
     public void getFilm(int position) {
-        Film film = filteredFilms.get(position);
+        Film film = filteredFilms.getValue().get(position);
         output.returnFilm(film);
     }
 
@@ -155,31 +177,27 @@ public class FilmListModel implements FilmListModelInput {
     }
 
     private void manageFilmListResults(List<Film> databaseFilms, List<Film> onlineFilms) {
-        orderedFilms = new ArrayList<>();
-        filteredFilms = new ArrayList<>();
+        filteredFilms.setValue(new ArrayList<Film>());
         onlineFilms = orderFilmListResult(onlineFilms);
         for(Film databaseFilm : databaseFilms) {
-            if(!filteredFilms.contains(databaseFilm)) {
+            if(!filteredFilms.getValue().contains(databaseFilm)) {
                 if(!favouriteFilter || databaseFilm.isFavourite()) {
-                    filteredFilms.add(databaseFilm);
+                    filteredFilms.getValue().add(databaseFilm);
+                    filteredFilms.setValue(filteredFilms.getValue());
                 }
-            }
-            if(!orderedFilms.contains(databaseFilm)) {
-                orderedFilms.add(databaseFilm);
             }
         }
         for(Film onlineFilm : onlineFilms) {
-            if(!filteredFilms.contains(onlineFilm)) {
+            if(!filteredFilms.getValue().contains(onlineFilm)) {
                 if(!favouriteFilter || onlineFilm.isFavourite()) {
-                    filteredFilms.add(onlineFilm);
+                    filteredFilms.getValue().add(onlineFilm);
+                    filteredFilms.setValue(filteredFilms.getValue());
                 }
             }
-            if(!orderedFilms.contains(onlineFilm)) {
+            if(!databaseFilms.contains(onlineFilm)) {
                 new WriteDatabaseOperation().execute(onlineFilm);
-                orderedFilms.add(onlineFilm);
             }
         }
-        output.onFilmReceived(filteredFilms);
     }
 
     private List<Film> orderFilmListResult(List<Film> resultList) {
@@ -197,18 +215,20 @@ public class FilmListModel implements FilmListModelInput {
         return orderedFilmList;
     }
 
-    private class ReadDatabaseOperation extends AsyncTask<Void, Void, List<Film>> {
+    private class ReadDatabaseOperation extends AsyncTask<ListOfFilmsInterface, Void, FilmCallWrapper> {
         @Override
-        protected List<Film> doInBackground(Void... params) {
+        protected FilmCallWrapper doInBackground(ListOfFilmsInterface... params) {
 
             List<Film> films = filmDatabase.databaseAccess().getAllFilms();
-
-            return films;
+            FilmCallWrapper filmCallWrapper = new FilmCallWrapper();
+            filmCallWrapper.films = films;
+            filmCallWrapper.listOfFilmsInterface = params[0];
+            return filmCallWrapper;
         }
 
         @Override
-        protected void onPostExecute(List<Film> result) {
-            checkDatabaseListWithOnline(result);
+        protected void onPostExecute(FilmCallWrapper filmCallWrapper) {
+            filmCallWrapper.listOfFilmsInterface.returnListOfFilms(filmCallWrapper.films);
         }
     }
 
