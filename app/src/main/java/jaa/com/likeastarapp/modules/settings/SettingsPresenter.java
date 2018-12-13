@@ -2,19 +2,19 @@ package jaa.com.likeastarapp.modules.settings;
 
 import android.content.Context;
 
-import jaa.com.likeastarapp.modules.settings.model.SettingsModel;
-import jaa.com.likeastarapp.modules.settings.model.SettingsModelInput;
-import jaa.com.likeastarapp.modules.settings.model.SettingsModelOutput;
+import jaa.com.likeastarapp.modules.settings.repository.SettingsRepository;
+import jaa.com.likeastarapp.modules.settings.repository.SettingsRepositoryInput;
+import jaa.com.likeastarapp.modules.settings.repository.SettingsRepositoryOutput;
 
-public class SettingsPresenter implements SettingsContract.Presenter, SettingsModelOutput {
+public class SettingsPresenter implements SettingsContract.Presenter, SettingsRepositoryOutput {
 
     private SettingsContract.View userInterface;
-    private SettingsModelInput model;
+    private SettingsRepositoryInput repository;
 
     @Override
     public void start(SettingsContract.View view, Context context) {
         userInterface = view;
-        model = new SettingsModel(this, context);
+        repository = new SettingsRepository(this, context);
     }
 
 

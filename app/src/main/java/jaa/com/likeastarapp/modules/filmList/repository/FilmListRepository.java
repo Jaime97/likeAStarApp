@@ -1,4 +1,4 @@
-package jaa.com.likeastarapp.modules.filmList.model;
+package jaa.com.likeastarapp.modules.filmList.repository;
 
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.persistence.room.Room;
@@ -22,9 +22,9 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class FilmListModel implements FilmListModelInput {
+public class FilmListRepository implements FilmListRepositoryInput {
 
-    private FilmListModelOutput output;
+    private FilmListRepositoryOutput output;
     private static Retrofit retrofit = null;
     private FilmLocationsApi service;
     private MutableLiveData<List<Film>> filteredFilms;
@@ -58,7 +58,7 @@ public class FilmListModel implements FilmListModelInput {
         public List<Film> films;
     }
 
-    public FilmListModel(FilmListModelOutput output, Context context) {
+    public FilmListRepository(FilmListRepositoryOutput output, Context context) {
         this.output = output;
         service = FilmService.getRetrofitInstance().create(FilmLocationsApi.class);
         filteredFilms = new MutableLiveData<>();

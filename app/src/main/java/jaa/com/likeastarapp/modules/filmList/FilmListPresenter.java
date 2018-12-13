@@ -7,21 +7,21 @@ import android.support.annotation.Nullable;
 import java.util.List;
 
 import jaa.com.likeastarapp.common.dao.Film;
-import jaa.com.likeastarapp.modules.filmList.model.FilmListModel;
-import jaa.com.likeastarapp.modules.filmList.model.FilmListModelInput;
-import jaa.com.likeastarapp.modules.filmList.model.FilmListModelOutput;
+import jaa.com.likeastarapp.modules.filmList.repository.FilmListRepository;
+import jaa.com.likeastarapp.modules.filmList.repository.FilmListRepositoryInput;
+import jaa.com.likeastarapp.modules.filmList.repository.FilmListRepositoryOutput;
 
-public class FilmListPresenter implements FilmListContract.Presenter, FilmListModelOutput {
+public class FilmListPresenter implements FilmListContract.Presenter, FilmListRepositoryOutput {
 
     private FilmListContract.View userInterface;
-    private FilmListModelInput model;
+    private FilmListRepositoryInput repository;
     private String nameToSearch;
 
     @Override
     public void start(FilmListContract.View view, Context context) {
         userInterface = view;
-        model = new FilmListModel(this, context);
-        model.getFilmList().observe(userInterface.getActivity(), new Observer<List<Film>>() {
+        repository = new FilmListRepository(this, context);
+        repository.getFilmList().observe(userInterface.getActivity(), new Observer<List<Film>>() {
             @Override
             public void onChanged(@Nullable List<Film> films) {
                 userInterface.updateList(films);
@@ -32,37 +32,37 @@ public class FilmListPresenter implements FilmListContract.Presenter, FilmListMo
 
     @Override
     public void resume() {
-        model.setDownloadAutomaticallyPreference();
-        model.setDownloadOnlyWithWifiPreference();
-        model.updateFilmList();
+        repository.setDownloadAutomaticallyPreference();
+        repository.setDownloadOnlyWithWifiPreference();
+        repository.updateFilmList();
     }
 
     @Override
     public void rowClicked(int position) {
-        model.getFilm(position);
+        repository.getFilm(position);
     }
 
     @Override
     public void favouriteButtonClicked(int position) {
-        model.changeFavouriteStateOfFilm(position);
+        repository.changeFavouriteStateOfFilm(position);
     }
 
     @Override
     public void searchInList(String nameToSearch) {
         this.nameToSearch = nameToSearch;
-        model.searchInList(nameToSearch);
+        repository.searchInList(nameToSearch);
     }
 
     @Override
     public void favouriteTabSelected() {
-        model.setFavouriteFilter(true);
-        model.searchInList(nameToSearch);
+        repository.setFavouriteFilter(true);
+        repository.searchInList(nameToSearch);
     }
 
     @Override
     public void allElementsTabSelected() {
-        model.setFavouriteFilter(false);
-        model.searchInList(nameToSearch);
+        repository.setFavouriteFilter(false);
+        repository.searchInList(nameToSearch);
     }
 
     @Override
@@ -77,6 +77,6 @@ public class FilmListPresenter implements FilmListContract.Presenter, FilmListMo
 
     @Override
     public void stop() {
-        model.stopRepeatingTask();
+        repository.stopRepeatingTask();
     }
 }
