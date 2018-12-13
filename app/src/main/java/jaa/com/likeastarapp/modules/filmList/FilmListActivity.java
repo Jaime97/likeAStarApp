@@ -110,11 +110,12 @@ public class FilmListActivity extends AppCompatActivity implements FilmListContr
     @Override
     public void updateList(List<Film> movieList) {
         mAdapter.update(movieList);
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override
-    public void reloadList() {
-        mAdapter.notifyDataSetChanged();
+    public FilmListActivity getActivity() {
+        return this;
     }
 
     @Override

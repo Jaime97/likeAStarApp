@@ -15,6 +15,7 @@ public interface FilmDetailContract {
         void initMapWithFilm(Film film);
         void addFilmImage(FilmImage image);
         void changeVisitedText(int text);
+        FilmDetailActivity getActivity();
     }
 
     interface Presenter {

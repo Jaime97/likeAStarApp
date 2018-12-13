@@ -96,4 +96,9 @@ public class FilmDetailActivity extends AppCompatActivity implements FilmDetailC
         visitedButton.setText(text);
     }
 
+    @Override
+    public FilmDetailActivity getActivity() {
+        return this;
+    }
+
 }

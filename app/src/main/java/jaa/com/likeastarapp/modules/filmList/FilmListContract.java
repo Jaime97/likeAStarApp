@@ -12,13 +12,12 @@ public interface FilmListContract {
         void updateList(List<Film> movieList);
         void initDetailWithFilm(Film film);
         void initSettings();
-        void reloadList();
+        FilmListActivity getActivity();
     }
 
     interface Presenter {
         void start(View view, Context context);
         void resume();
-        void updateFilmList();
         void rowClicked(int position);
         void favouriteButtonClicked(int position);
         void searchInList(String nameToSearch);

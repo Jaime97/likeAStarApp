@@ -1,6 +1,8 @@
 package jaa.com.likeastarapp.modules.filmDetail;
 
+import android.arch.lifecycle.Observer;
 import android.content.Context;
+import android.support.annotation.Nullable;
 
 import jaa.com.likeastarapp.R;
 import jaa.com.likeastarapp.common.dao.Film;
@@ -18,17 +20,29 @@ public class FilmDetailPresenter implements FilmDetailContract.Presenter, FilmDe
     public void start(FilmDetailContract.View view, Context context) {
         userInterface = view;
         model = new FilmDetailModel(this, context);
+        model.getDetailFilm().observe(userInterface.getActivity(), new Observer<Film>() {
+            @Override
+            public void onChanged(@Nullable Film film) {
+                if(film.isVisited()) {
+                    userInterface.changeVisitedText(R.string.visited);
+                }
+                else {
+                    userInterface.changeVisitedText(R.string.unvisited);
+                }
+                userInterface.addTitleToTextView(film.getTitle());
+                userInterface.addActorToTextView(film.getActor_1());
+                userInterface.addDirectorToTextView(film.getDirector());
+                userInterface.addProductorToTextView(film.getProduction_company());
+            }
+        });
+        model.getFilmImage().observe(userInterface.getActivity(), new Observer<FilmImage>() {
+            @Override
+            public void onChanged(@Nullable FilmImage filmImage) {
+                userInterface.addFilmImage(filmImage);
+            }
+        });
         Film film = userInterface.getFilm();
-        if(film.isVisited()) {
-            userInterface.changeVisitedText(R.string.visited);
-        }
-        else {
-            userInterface.changeVisitedText(R.string.unvisited);
-        }
-        userInterface.addTitleToTextView(film.getTitle());
-        userInterface.addActorToTextView(film.getActor_1());
-        userInterface.addDirectorToTextView(film.getDirector());
-        userInterface.addProductorToTextView(film.getProduction_company());
+        model.addDetailFilm(film);
         model.getImageFromTitle(film.getTitle());
     }
 
@@ -40,24 +54,7 @@ public class FilmDetailPresenter implements FilmDetailContract.Presenter, FilmDe
     @Override
     public void visitedButtonClicked() {
         Film film = userInterface.getFilm();
-        model.getFilm(film.getTitle());
-    }
-
-    @Override
-    public void imageReceived(FilmImage filmImage) {
-        userInterface.addFilmImage(filmImage);
-    }
-
-    @Override
-    public void filmReceived(Film film) {
-        if(film.isVisited()) {
-            model.changeVisitedState(film, false);
-            userInterface.changeVisitedText(R.string.unvisited);
-        }
-        else {
-            model.changeVisitedState(film, true);
-            userInterface.changeVisitedText(R.string.visited);
-        }
+        model.changeVisitState(film.getTitle());
     }
 
     @Override
