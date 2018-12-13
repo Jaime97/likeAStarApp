@@ -1,5 +1,6 @@
 package jaa.com.likeastarapp.modules.filmDetail.model;
 
+import android.arch.lifecycle.MutableLiveData;
 import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -13,6 +14,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import jaa.com.likeastarapp.R;
 import jaa.com.likeastarapp.common.dao.Film;
 import jaa.com.likeastarapp.common.dao.FilmImage;
 import jaa.com.likeastarapp.common.database.FilmDatabase;
@@ -29,6 +31,8 @@ public class FilmDetailModel implements FilmDetailModelInput {
     private static Retrofit retrofit = null;
     private FilmImageApi service;
     private Context context;
+    private MutableLiveData<Film> detailFilm;
+    private MutableLiveData<FilmImage> filmImage;
 
     private static final String DATABASE_NAME = "film_db";
     private FilmDatabase filmDatabase;
@@ -37,8 +41,22 @@ public class FilmDetailModel implements FilmDetailModelInput {
         this.output = output;
         service = FilmService.getRetrofitInstance().create(FilmImageApi.class);
         this.context = context;
+        detailFilm = new MutableLiveData<>();
+        detailFilm.setValue(new Film());
+
+        filmImage = new MutableLiveData<>();
+
         filmDatabase = Room.databaseBuilder(this.context,
                 FilmDatabase.class, DATABASE_NAME).fallbackToDestructiveMigration().build();
+    }
+
+    public MutableLiveData<Film> getDetailFilm() {
+        return detailFilm;
+    }
+
+    @Override
+    public MutableLiveData<FilmImage> getFilmImage() {
+        return null;
     }
 
     @Override
@@ -47,8 +65,7 @@ public class FilmDetailModel implements FilmDetailModelInput {
         call.enqueue(new Callback<FilmImage>() {
             @Override
             public void onResponse(Call<FilmImage> call, Response<FilmImage> response) {
-                FilmImage filmImage = response.body();
-                output.imageReceived(filmImage);
+                filmImage.setValue(response.body());
             }
 
             @Override
@@ -58,14 +75,14 @@ public class FilmDetailModel implements FilmDetailModelInput {
     }
 
     @Override
-    public void changeVisitedState(Film film, boolean visited) {
-        film.setVisited(visited);
-        new UpdateDatabaseOperation().execute(film);
+    public void changeVisitState(String title) {
+        new ReadDatabaseOperation().execute(title);
     }
 
     @Override
-    public void getFilm(String title) {
-        new ReadDatabaseOperation().execute(title);
+    public void addDetailFilm(Film film) {
+        detailFilm.setValue(film);
+        getImageFromTitle(film.getTitle());
     }
 
     private class UpdateDatabaseOperation extends AsyncTask<Film, Void, Void> {
@@ -89,7 +106,15 @@ public class FilmDetailModel implements FilmDetailModelInput {
 
         @Override
         protected void onPostExecute(Film result) {
-            output.filmReceived(result);
+            if(result.isVisited()) {
+                result.setVisited(false);
+                new UpdateDatabaseOperation().execute(result);
+            }
+            else {
+                result.setVisited(true);
+                new UpdateDatabaseOperation().execute(result);
+            }
+            detailFilm.setValue(result);
         }
     }
 
