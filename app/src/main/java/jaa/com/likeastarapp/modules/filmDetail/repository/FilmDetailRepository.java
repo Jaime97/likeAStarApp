@@ -1,20 +1,10 @@
-package jaa.com.likeastarapp.modules.filmDetail.model;
+package jaa.com.likeastarapp.modules.filmDetail.repository;
 
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.persistence.room.Room;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.widget.ImageView;
 
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
-import jaa.com.likeastarapp.R;
 import jaa.com.likeastarapp.common.dao.Film;
 import jaa.com.likeastarapp.common.dao.FilmImage;
 import jaa.com.likeastarapp.common.database.FilmDatabase;
@@ -25,9 +15,9 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class FilmDetailModel implements FilmDetailModelInput {
+public class FilmDetailRepository implements FilmDetailRepositoryInput {
 
-    private FilmDetailModelOutput output;
+    private FilmDetailRepositoryOutput output;
     private static Retrofit retrofit = null;
     private FilmImageApi service;
     private Context context;
@@ -37,7 +27,7 @@ public class FilmDetailModel implements FilmDetailModelInput {
     private static final String DATABASE_NAME = "film_db";
     private FilmDatabase filmDatabase;
 
-    public FilmDetailModel(FilmDetailModelOutput output, Context context) {
+    public FilmDetailRepository(FilmDetailRepositoryOutput output, Context context) {
         this.output = output;
         service = FilmService.getRetrofitInstance().create(FilmImageApi.class);
         this.context = context;
@@ -56,7 +46,7 @@ public class FilmDetailModel implements FilmDetailModelInput {
 
     @Override
     public MutableLiveData<FilmImage> getFilmImage() {
-        return null;
+        return filmImage;
     }
 
     @Override

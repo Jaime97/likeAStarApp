@@ -1,11 +1,11 @@
-package jaa.com.likeastarapp.modules.filmDetail.model;
+package jaa.com.likeastarapp.modules.filmDetail.repository;
 
 import android.arch.lifecycle.MutableLiveData;
 
 import jaa.com.likeastarapp.common.dao.Film;
 import jaa.com.likeastarapp.common.dao.FilmImage;
 
-public interface FilmDetailModelInput {
+public interface FilmDetailRepositoryInput {
     void getImageFromTitle(String title);
     void changeVisitState(String title);
     void addDetailFilm(Film film);
